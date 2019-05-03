@@ -1,5 +1,6 @@
 #pragma once
-#include <string>
+
+#include "CustomException.h"
 
 // we manage a string which acts as a raw buffer and is moved into the caller's target string on exit
 // this should be about as efficient as it can be, assuming that the underlying string class supports move semantics
@@ -23,7 +24,7 @@ namespace tbx {
 			, m_length(length)
 			, m_buffer(length + 1, fill)
 		{
-			assert(length < std::numeric_limits<size_t>::max());
+			TBX_PRECONDITION(length < std::numeric_limits<size_t>::max());
 		}
 
 		~AutoStrBuffer()
@@ -46,6 +47,13 @@ namespace tbx {
 
 		// returns the real size (in characters) of our allocated buffer (including the space for the null terminator)
 		size_t size() const { return m_length + 1; }
+
+		// resize our buffer
+		void resize(size_t newmaxlength) {
+			TBX_PRECONDITION(HasOwnership());
+			m_buffer.resize(newmaxlength);
+			m_length = newmaxlength;
+		}
 
 	// pointer semantics
 

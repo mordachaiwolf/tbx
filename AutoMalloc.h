@@ -1,6 +1,5 @@
 #pragma once
 
-#include <assert.h>
 #include "CustomException.h"
 
 namespace tbx
@@ -151,8 +150,8 @@ namespace tbx
 				m_ptr = nullptr;
 				m_cbSize = 0;
 			}
-			assert(!m_cbSize);
-			assert(!m_ptr);
+			TBX_POSTCONDITION(!m_cbSize);
+			TBX_POSTCONDITION(!m_ptr);
 		}
 
 		// synonym for free to make us more interchangeable with std smart pointers

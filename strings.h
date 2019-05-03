@@ -22,4 +22,11 @@ namespace tbx {
 		trim_left(s);
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+
+	//TODO: convert C language ... with template driven decoding
+
+	// printf style string formatting helpers
+	std::string format_string(const char * format, ...);
+
 }

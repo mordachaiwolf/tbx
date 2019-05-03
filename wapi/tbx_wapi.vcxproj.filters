@@ -33,6 +33,9 @@
     <ClInclude Include="WNetError.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AcceleratorTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -48,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WNetError.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AcceleratorTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

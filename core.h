@@ -3,6 +3,20 @@
 // NOTE: KEEP THIS FILE SIMPLE AND WITHOUT DEPENDENCIES!!!
 
 //////////////////////////////////////////////////////////////////////////
+// preprocessor junk
+//////////////////////////////////////////////////////////////////////////
+
+#ifndef _STRINGIZE
+#define _STRINGIZEX(x) #x
+#define _STRINGIZE(x) _STRINGIZEX(x)
+#endif
+
+// MESSAGE(message) macro outputs "file (line) : message"
+// In VisualStudio, this allows you to double click the output window and jump to the code
+// usage: #pragma MESSAGE("double check this code!")
+#define MESSAGE(message) __FILE__ "(" _STRINGIZE(__LINE__) ") : " message
+
+//////////////////////////////////////////////////////////////////////////
 // countof(x)		same as sizeof(array)/sizeof(*array)
 //                  or collection.size()
 //
@@ -35,27 +49,6 @@ namespace tbx
 	template <size_t size> size_t lengthof(const char16_t(&collection)[size]) { return size - 1; }
 	template <size_t size> size_t lengthof(const char32_t(&collection)[size]) { return size - 1; }
 }
-
-//////////////////////////////////////////////////////////////////////////
-// file & line output to build window
-//////////////////////////////////////////////////////////////////////////
-
-// MESSAGE macro outputs file & line + message, allowing you to double click the output window and jump to the code (VC++)
-// usage: #pragma MESSAGE("double check this code!")
-#ifndef _STRINGIZE
-#define _STRINGIZEX(x) #x
-#define _STRINGIZE(x) _STRINGIZEX(x)
-#endif
-#define  MESSAGE(desc) message(__FILE__ "(" _STRINGIZE(__LINE__) ") : " desc)
-
-
-// generates the narrow or wide character literal depending on T
-// usage: LITERAL(char-type, "literal text") or LITERAL(char-type, 'c')
-#define LITERAL(T,x) tbx::literal_traits<typename T>::choose(x, L##x)
-
-// forces the template selection/matching algorithm to not deduce T from the specified argument
-// usage: template <typename T> void myfun(T arg1, IDENTITYOF(T) arg2, ...);
-#define IDENTITYOF(T) typename tbx::identity_of<T>::type
 
 
 namespace tbx {
@@ -126,3 +119,11 @@ namespace tbx {
 	};
 
 }
+
+// generates the narrow or wide character literal depending on T
+// usage: LITERAL(char-type, "literal text") or LITERAL(char-type, 'c')
+#define LITERAL(T,x) tbx::literal_traits<typename T>::choose(x, L##x)
+
+// forces the template selection/matching algorithm to not deduce T from the specified argument
+// usage: template <typename T> void myfun(T arg1, IDENTITYOF(T) arg2, ...);
+#define IDENTITYOF(T) typename tbx::identity_of<T>::type

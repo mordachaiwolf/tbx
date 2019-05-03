@@ -10,8 +10,8 @@ namespace tbx {
 	// extend countof() to include Afx style collections that supply GetSize()
 	template <typename T> auto countof(const T & collection) -> decltype(collection.GetSize()) { return collection.GetSize(); }
 
-// 	// extend countof() to include Afx style collections that supply GetLength()
-// 	template <typename T> auto countof(const T & collection) -> decltype(collection.GetLength()) { return collection.GetLength(); }
+	// extend lengthof() to include Afx style collections that supply GetLength()
+	template <typename T> auto lengthof(const T & collection) -> decltype(collection.GetLength()) { return collection.GetLength(); }
 
 	//////////////////////////////////////////////////////////////////////////
 	// traits to provide access to contained types
@@ -144,7 +144,8 @@ namespace tbx {
 					break;
 			}
 
-			ASSERT(nEnd > nStart);
+			// this is a valid point for "terminate if violated" as it does indicate a fundamental programming violation...
+			TBX_ASSERT(nEnd > nStart);
 
 			collection.Add(strSubstrings.Mid(nStart, nEnd - nStart));
 

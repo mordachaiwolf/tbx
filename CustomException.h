@@ -93,6 +93,28 @@ namespace tbx {
 		{
 		}
 	};
-
-
 }
+
+// !! is used to ensure that any overloaded operators used to evaluate 'expr' do not end up at &&.
+#define TBX_ASSERT_MESSAGE(expr, msg) (void)((!!expr) || (throw CContextException(__FUNCTION__, MESSAGE(msg)), true))
+#define TBX_ASSERT_ALWAYS(expr) TBX_ASSERT_MESSAGE((expr), _STRINGIZE(expr))
+#define TBX_ASSERT(expr) TBX_ASSERT_ALWAYS(expr)
+
+// simply throw a context exception for now
+// at some point I can revisit all of these and possibly convert them to C++20 precondition / postcondition contracts
+#define TBX_PRECONDITION(expr) TBX_ASSERT_MESSAGE((expr), "precondition violated: " _STRINGIZE(expr))
+#define TBX_POSTCONDITION(expr) TBX_ASSERT_MESSAGE((expr), "postcondition violated: " _STRINGIZE(expr))
+
+// TBX_ASSERT_DEBUG_ONLY is only executed in a debug build (it is elided for release builds)
+#ifdef _DEBUG
+#define TBX_ASSERT_DEBUG_ONLY(expr) TBX_ASSERT_ALWAYS(expr)
+#else
+#define TBX_ASSERT_DEBUG_ONLY(expr) 
+#endif // _DEBUG
+
+// TBX_VERIFY always executes, but only throws on failure in a debug build
+#ifdef _DEBUG
+#define TBX_VERIFY(expr) TBX_ASSERT(expr)
+#else
+#define TBX_VERIFY(expr) (expr)
+#endif

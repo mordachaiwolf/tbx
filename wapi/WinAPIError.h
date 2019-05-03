@@ -17,27 +17,27 @@ namespace tbx::wapi {
 	// same as GetWinAPIErrorMessage, but allows the system to do %1 %2 Substitutions viz the additional arguments
 	std::string GetWinAPIErrorMessage(const DWORD dwError, const TCHAR * pszFirstArg, ...);
 
-	// returns an error message for a WinAPI error and includes the named API in the description (e.g. FindNextFile() : invalid argument)
+	// same as GetWinAPIErrorMessage, plus includes the named API in the description (e.g. FindNextFile() : invalid argument)
 	inline std::string GetWinAPIErrorMessage(const std::string & api, const DWORD dwError) { return api + "() : " + GetWinAPIErrorMessage(dwError); }
-	inline std::string GetWinAPIErrorMessage(const std::wstring & api, const DWORD dwError) { return GetWinAPIErrorMessage(c_str(narrow(api)), dwError); }
+
+	// same as GetWinAPIErrorMessage, embeds the args string within the API call in the output
+	inline std::string GetWinAPIErrorMessage(const std::string & api, const std::string & args, const DWORD dwError) { return api + "(" + args + ") : " + GetWinAPIErrorMessage(dwError); }
 
 	class CWinAPIErrorException : public CContextException
 	{
 		DWORD	error;
 	public:
-		// api
+		// source
 		CWinAPIErrorException(const char * source, DWORD error) : CContextException(source, GetWinAPIErrorMessage(error)), error(error) {}
 		CWinAPIErrorException(const wchar_t * source, DWORD error) : CContextException(source, GetWinAPIErrorMessage(error)), error(error) {}
 
 		// source + api
 		CWinAPIErrorException(const char * source, const char * api, DWORD error) : CContextException(source, GetWinAPIErrorMessage(api, error)), error(error) {}
-		CWinAPIErrorException(const char * source, const wchar_t * api, DWORD error) : CContextException(source, GetWinAPIErrorMessage(api, error)), error(error) {}
 		CWinAPIErrorException(const wchar_t * source, const char * api, DWORD error) : CContextException(source, GetWinAPIErrorMessage(api, error)), error(error) {}
-		CWinAPIErrorException(const wchar_t * source, const wchar_t * api, DWORD error) : CContextException(source, GetWinAPIErrorMessage(api, error)), error(error) {}
 
 		// source + api + args
-		CWinAPIErrorException(const char * source, const TCHAR * api, const TCHAR * args, DWORD error) : CContextException(source, GetWinAPIErrorMessage(api, error)), error(error) {}
-		CWinAPIErrorException(const wchar_t * source, const TCHAR * api, const TCHAR * args, DWORD error) : CContextException(source, GetWinAPIErrorMessage(api, error)), error(error) {}
+		CWinAPIErrorException(const char * source, const char * api, const std::string & args, DWORD error) : CContextException(source, GetWinAPIErrorMessage(api, error)), error(error) {}
+		CWinAPIErrorException(const wchar_t * source, const char * api, const std::string & args, DWORD error) : CContextException(source, GetWinAPIErrorMessage(api, error)), error(error) {}
 
 		DWORD GetError() const { return error; }
 	};
