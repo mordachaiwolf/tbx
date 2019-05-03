@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tbx\crt\AutoMalloc.h"
+#include "tbx/AutoMalloc.h"
 #include "WinAPIError.h"
 
 // note: these throw CWinAPIException

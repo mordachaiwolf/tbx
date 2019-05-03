@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include "CustomException.h"
 
 namespace tbx
 {
@@ -43,7 +44,7 @@ namespace tbx
 		// allocate a block of given size (in bytes)
 		explicit AutoMalloc<T>(size_t count = 0) :
 			m_cbSize(count * sizeof(T)),
-			m_ptr(count ? (T*)::malloc(m_cbSize) : nullptr)
+			m_ptr(count ? (T*)std::malloc(m_cbSize) : nullptr)
 		{
 			if (!m_ptr && count)
 				throw std::bad_alloc();
@@ -52,10 +53,10 @@ namespace tbx
 		// allocate a block of given size, and copy the specified pointer's contents into ours
 		AutoMalloc<T>(const T * pMemory, size_t count) :
 			m_cbSize(count * sizeof(T)),
-			m_ptr(count ? (T*)::malloc(m_cbSize) : nullptr)
+			m_ptr(count ? (T*)std::malloc(m_cbSize) : nullptr)
 		{
 			if (m_ptr)
-				::memcpy(m_ptr, pMemory, m_cbSize);
+				std::memcpy(m_ptr, pMemory, m_cbSize);
 		}
 
 		~AutoMalloc<T>()
@@ -94,7 +95,7 @@ namespace tbx
 		AutoMalloc<T> & take_cast(AutoMalloc<U> && that)
 		{
 			if (that.size_in_bytes() % sizeof(T) != 0)
-				throw std::invalid_argument(__FUNCTION__ " : invalid conversion!");
+				throw CContextException(__FUNCTION__, "invalid conversion!");
 			return take((AutoMalloc<T>&&)that);
 		}
 
@@ -146,7 +147,7 @@ namespace tbx
 		{
 			if (m_ptr)
 			{
-				::free(m_ptr);
+				std::free(m_ptr);
 				m_ptr = nullptr;
 				m_cbSize = 0;
 			}
@@ -160,7 +161,7 @@ namespace tbx
 		// erases our contents
 		void erase(int zero_value = 0)
 		{
-			::memset(m_ptr, zero_value, m_cbSize);
+			std::memset(m_ptr, zero_value, m_cbSize);
 		}
 
 		// reallocate us 
@@ -193,7 +194,7 @@ namespace tbx
 		AutoMalloc<T> & copy(const X * ptr, size_t count_of_x)
 		{
 			realloc(MulDiv(count_of_x, sizeof(X), sizeof(T)));
-			::memmove(m_ptr, ptr, m_cbSize);
+			std::memmove(m_ptr, ptr, m_cbSize);
 			return *this;
 		}
 

@@ -19,7 +19,7 @@ namespace tbx::wapi {
 			wchar_t wszExplain[512];	// arbitrary - this is listed as "256 recommended" in MSDN docs.  
 			wchar_t wszProvider[128];	// not specified in docs, but I assume shorter 
 
-			const DWORD dwExtraError = WNetGetLastError(&dwExtendedError, wszExplain, static_cast<int>(count(wszExplain)), wszProvider, static_cast<int>(count(wszProvider)));
+			const DWORD dwExtraError = WNetGetLastError(&dwExtendedError, wszExplain, static_cast<int>(countof(wszExplain)), wszProvider, static_cast<int>(countof(wszProvider)));
 			if (dwExtraError == NO_ERROR)
 			{
 				provider = narrow(wszProvider);

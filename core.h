@@ -3,59 +3,38 @@
 // NOTE: KEEP THIS FILE SIMPLE AND WITHOUT DEPENDENCIES!!!
 
 //////////////////////////////////////////////////////////////////////////
-// count(x)			same as sizeof(array)/sizeof(*array)
-// maxlength(x)		same as count(array)-1
+// countof(x)		same as sizeof(array)/sizeof(*array)
+//                  or collection.size()
 //
-// NOTE: for these count() functions and how to enhance them if we run into ambiguity, see:
+// lengthof(x)		same as countof(array)-1
+//
+// NOTE: for these countof() functions and how to enhance them if we run into ambiguity, see:
 //       https://stackoverflow.com/questions/48648148/how-to-write-a-size-function-that-works-on-any-type-of-collection-objects
+//
+// reminder to self: size(x) is a terrible name:
+//	1) classes often have a member by that name, and that blocks any free size() function references (not a fan of this c++ limitation)
+//	2) similarly, size is commonly used local variable name, which also interferes with name resolution to a free function by that name
 //////////////////////////////////////////////////////////////////////////
 
 namespace tbx
 {
 	// extract the count of items from a static array
-	template <typename T, size_t size> size_t count(const T(&collection)[size]) { return size; }
+	template <typename T, size_t size> size_t countof(const T(&collection)[size]) { return size; }
 
 	// extract the count of items from a collection that provides a size() member
-	template <typename T> auto count(const T & collection) -> decltype(collection.size()) { return collection.size(); }
+	template <typename T> auto countof(const T & collection) -> decltype(collection.size()) { return collection.size(); }
 
 	// extract the maximum length of a fixed character string array
-	// WARNING: this gives the maximum length string that can fit in the array  (i.e. count(array) - 1)
+	// WARNING: this gives the maximum length string that can fit in the array  (i.e. countof(array) - 1)
 	//			it does not actually do a strlen() on the array!
-	template <size_t size> size_t maxlength(const char(&collection)[size]) { return size - 1; }
-	template <size_t size> size_t maxlength(const wchar_t(&collection)[size]) { return size - 1; }
+	template <size_t size> size_t lengthof(const char(&collection)[size]) { return size - 1; }
+	template <size_t size> size_t lengthof(const wchar_t(&collection)[size]) { return size - 1; }
 #ifdef char8_t
-	template <size_t size> size_t maxlength(const char8_t(&collection)[size]) { return size - 1; }
+	template <size_t size> size_t lengthof(const char8_t(&collection)[size]) { return size - 1; }
 #endif
-	template <size_t size> size_t maxlength(const char16_t(&collection)[size]) { return size - 1; }
-	template <size_t size> size_t maxlength(const char32_t(&collection)[size]) { return size - 1; }
-
-	//////////////////////////////////////////////////////////////////////////
-
+	template <size_t size> size_t lengthof(const char16_t(&collection)[size]) { return size - 1; }
+	template <size_t size> size_t lengthof(const char32_t(&collection)[size]) { return size - 1; }
 }
-
-//////////////////////////////////////////////////////////////
-// countof(x) gives the number of elements in x
-//////////////////////////////////////////////////////////////
-
-// use tbx::count() instead! (q.v. count.h)
-#define countof(array) tbx::count(array)
-
-//////////////////////////////////////////////////////////////
-//
-// NOTE: the template version fails for local types (e.g. unnamed struct defined purely for inline data)
-//template <typename T>
-//size_t countof(T & array)
-//{
-//	return sizeof(array) / sizeof(array[0]);
-//}
-//////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////
-// lengthof is same as countof(x)-1 - to deal with essentially compile time strlen(x)
-//////////////////////////////////////////////////////////////
-
-// use tbx::maxlength() instead (q.v. count.h)
-#define lengthof(literal) tbx::maxlength(literal)
 
 //////////////////////////////////////////////////////////////////////////
 // file & line output to build window

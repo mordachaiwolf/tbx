@@ -7,11 +7,11 @@
 
 namespace tbx {
 
-	// extend count() to include Afx style collections that supply GetSize()
-	template <typename T> auto count(const T & collection) -> decltype(collection.GetSize()) { return collection.GetSize(); }
+	// extend countof() to include Afx style collections that supply GetSize()
+	template <typename T> auto countof(const T & collection) -> decltype(collection.GetSize()) { return collection.GetSize(); }
 
-// 	// extend count() to include Afx style collections that supply GetLength()
-// 	template <typename T> auto count(const T & collection) -> decltype(collection.GetLength()) { return collection.GetLength(); }
+// 	// extend countof() to include Afx style collections that supply GetLength()
+// 	template <typename T> auto countof(const T & collection) -> decltype(collection.GetLength()) { return collection.GetLength(); }
 
 	//////////////////////////////////////////////////////////////////////////
 	// traits to provide access to contained types
@@ -60,7 +60,7 @@ namespace tbx {
 	template<typename OutputType, typename CollectionType, typename SeparatorType>
 	void Compose(OutputType & out, const CollectionType & collection, SeparatorType separator)
 	{
-		for (auto z = count(collection), i = 0; i < z; ++i)
+		for (auto z = countof(collection), i = 0; i < z; ++i)
 		{
 			if (i)
 				out << separator;
@@ -158,7 +158,7 @@ namespace tbx {
 	template<typename CollectionType, typename T, class PredicateType>
 	int Find(const CollectionType & collection, const T & element, PredicateType predicate)   // returns index or -1
 	{
-		for (auto z = count(collection), i = 0; i < z; ++i)
+		for (auto z = countof(collection), i = 0; i < z; ++i)
 		{
 			if (predicate(collection[i], element))
 				return i;
@@ -176,7 +176,7 @@ namespace tbx {
 //		// note: this isn't as good because std::equal_to is forcing both sides of the == to be of type T&, when it may be something else depending on how the collection's operator[] works...
 //		return Find(collection, element, std::equal_to<const T &>());
 
-		for (auto z = count(collection), i = 0; i < z; ++i)
+		for (auto z = countof(collection), i = 0; i < z; ++i)
 		{
 			if (collection[i] == element)
 				return i;
@@ -190,7 +190,7 @@ namespace tbx {
 	template<typename CollectionType, typename T, class PredicateType>
 	int ReverseFind(const CollectionType & collection, const T & element, PredicateType predicate)
 	{
-		for (auto i = count(collection); i; )
+		for (auto i = countof(collection); i; )
 		{
 			if (predicate(collection[--i], element))
 				return i;
@@ -205,7 +205,7 @@ namespace tbx {
 	template<typename CollectionType, typename T>
 	int ReverseFind(const CollectionType & collection, const T & element)
 	{
-		for (auto i = count(collection); i; )
+		for (auto i = countof(collection); i; )
 		{
 			if (collection[--i] == element)
 				return i;

@@ -160,7 +160,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AutoMalloc.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

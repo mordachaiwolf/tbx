@@ -13,6 +13,9 @@
 #include "tbx\CustomException.h"
 #include "tbx\for_each.h"
 #include "tbx\noawait.h"
+#include "tbx\AutoMalloc.h"
+#include "tbx\AutoStringBuffer.h"
+#include "tbx\BlowFish.h"
 
 using namespace tbx;
 
@@ -350,12 +353,12 @@ SCENARIO("counter() allows simple for-each syntax when you simply want a looping
 SCENARIO("reversed() allows for-each syntax to use reverse iterators for the given iterable object")
 {
 	std::vector<int> collection{ 5, 9, 15, 22 };
-	auto i = count(collection);
+	auto i = countof(collection);
 	for (auto e : reversed(collection))
 		REQUIRE(e == collection[--i]);
 
 	long values[] = { 3, 6, 9, 12 };
-	i = count(values);
+	i = countof(values);
 	for (auto e : reversed(values))
 		REQUIRE(e == values[--i]);
 
@@ -392,4 +395,90 @@ SCENARIO("indexed() allows for a simple way to get both the entity and the index
 
 	for (auto e : reversed(indexed(counter(10, 0))))
 		REQUIRE(e.value == e.index);		// 0/0, 1/1, .. 10/10
+}
+
+SCENARIO("AutoMalloc")
+{
+	AutoMalloc<unsigned> am;
+	GIVEN("an AutoMalloc<unsigned>")
+	{
+		WHEN("initially created, it does not allocate any buffer")
+		{
+			REQUIRE(am.size_in_bytes() == 0);
+			REQUIRE(am.get() == nullptr);
+		}
+		WHEN("resized to 100, it has 100 unsigned's worth of storage")
+		{
+			am.realloc(100);
+			REQUIRE(am.size() == 100);
+			REQUIRE(am.size_in_bytes() == 100 * sizeof(unsigned));
+
+			WHEN("it is moved into another host, it no longer has any associated buffer")
+			{
+				AutoMalloc<unsigned> am2(std::move(am));
+				REQUIRE(am2.size() == 100);
+				REQUIRE(am.size() == 0);
+				REQUIRE(am.get() == nullptr);
+				am = std::move(am2);
+			}
+
+			WHEN("it can be moved into a host with an orthogonal size in bytes to the original")
+			{
+				AutoMalloc<char> am2;
+				am2.take_cast(std::move(am));
+				REQUIRE(am2.size() == 100 * sizeof(unsigned));
+			}
+		}
+	}
+}
+
+SCENARIO("AutoStrBuffer")
+{
+	const char alphabet[] = "abcdefghijklmnopqrstuvwxyz";
+	const char helloworld[] = "hello world";
+	std::string s(helloworld);
+	GIVEN("an AutoStrBuffer<> of lengthof(alphabet) length")
+	{
+		THEN("the entire alphabet can be written to it, including the final null")
+		{
+			AutoStrBuffer<> asb(s, lengthof(alphabet));
+			REQUIRE(asb.size() == countof(alphabet));
+			memcpy(asb.get(), alphabet, lengthof(alphabet));
+			REQUIRE(memcmp(asb.get(), alphabet, countof(alphabet)) == 0);
+
+			THEN("it can be moved into another AutoStrBuffer without side effects to the original string")
+			{
+				// force abs2 to destroy at the end of this scope, causing s to update
+				{
+					AutoStrBuffer<> asb2(std::move(asb));
+					REQUIRE(s == helloworld);
+					REQUIRE(!asb.HasOwnership());
+					REQUIRE(asb2.HasOwnership());
+					REQUIRE(asb2.size() == countof(alphabet));
+					REQUIRE(memcmp(asb2.get(), alphabet, countof(alphabet)) == 0);
+				}
+
+				THEN("when the autobuffer is destroyed, the original string takes on the buffer")
+				{
+					REQUIRE(s == alphabet);
+				}
+			}
+		}
+	}
+}
+
+SCENARIO("BlowFish")
+{
+	const byte key[] = { 0x22, 0x3C, 0x8A, 0xFF, 0xE0, 0xC3, 0x99, 0xFA, 0x03, 0x59, 0xA1, 0xBB };
+	BlowFish cypher(key);
+	WHEN("a string is encrypted")
+	{
+		const char plaintext[] = "the bad fox ducked under the barbed wire fence";
+		auto data = cypher.Encrypt(plaintext);
+		THEN("the data can be decrypted using the same cypher-key")
+		{
+			auto str = cypher.Decrypt(data);
+			REQUIRE(str == plaintext);
+		}
+	}
 }
