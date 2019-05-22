@@ -3,6 +3,9 @@
 #include "AcceleratorTable.h"
 #include "tbx/strings.h"
 
+//#include <fmt/format.h>
+#include "fmt/include/fmt/format.h"
+
 namespace tbx::wapi {
 
 	//////////////////////////////////////////////////////////////////////
@@ -22,7 +25,7 @@ namespace tbx::wapi {
 		if (!m_hAccel)
 		{
 			auto error = GetLastError();
-			throw CWinAPIErrorException(__FUNCTION__, "LoadAccelerators", format_string("%X,%X", hInstance, nResourceID), error);
+			throw CWinAPIErrorException(__FUNCTION__, "LoadAccelerators", fmt::format("%X,%X", (UINT_PTR)hInstance, nResourceID), error);
 		}
 	}
 
@@ -36,7 +39,7 @@ namespace tbx::wapi {
 		if (!m_hAccel)
 		{
 			auto error = GetLastError();
-			throw CWinAPIErrorException(__FUNCTION__, "LoadAccelerators", format_string("%X,%s", hInstance, pszResource), error);
+			throw CWinAPIErrorException(__FUNCTION__, "LoadAccelerators", fmt::format("%X,%s", (UINT_PTR)hInstance, narrow(pszResource)), error);
 		}
 	}
 
@@ -52,7 +55,7 @@ namespace tbx::wapi {
 		if (!m_hAccel)
 		{
 			auto error = GetLastError();
-			throw CWinAPIErrorException(__FUNCTION__, "CreateAcceleratorTable", format_string("%p,%d", pAccels, count), error);
+			throw CWinAPIErrorException(__FUNCTION__, "CreateAcceleratorTable", fmt::format("%p,%u", (void*)(pAccels), count), error);
 		}
 	}
 
@@ -64,7 +67,7 @@ namespace tbx::wapi {
 				if (!m_hAccel)
 				{
 					auto error = GetLastError();
-					throw CWinAPIErrorException(__FUNCTION__, "DestroyAcceleratorTable", format_string("%X", m_hAccel), error);
+					throw CWinAPIErrorException(__FUNCTION__, "DestroyAcceleratorTable", fmt::format("%X", (UINT_PTR)m_hAccel), error);
 				}
 		}
 		m_hAccel = nullptr;
@@ -77,11 +80,11 @@ namespace tbx::wapi {
 		if (m_hAccel && !m_accels.size())
 		{
 			const auto count = ::CopyAcceleratorTable(m_hAccel, nullptr, 0);
-			m_accels = accels_type(count);
+			m_accels.resize(count);
 			const auto copies = ::CopyAcceleratorTable(m_hAccel, &m_accels[0], count);
 
 			if (count != copies)
-				throw CContextException(__FUNCTION__, format_string("CopyAcceleratorTable() only copied %d out of %d entries", copies, count));
+				throw CContextException(__FUNCTION__, fmt::format("CopyAcceleratorTable() only copied %d out of %d entries", copies, count));
 		}
 		return m_accels;
 	}

@@ -7,9 +7,6 @@
 #include <codecvt>
 #include <xlocbuf>
 
-// free function wrapper for obtaining const char pointers from any type that supports the member c_str()
-template <typename T> auto c_str(const T & str) -> decltype(str.c_str()) { return str.c_str(); }
-
 // simple helper to convert a compile-time known ASCII narrow string to a wide string
 // this does NOT take into account multi byte string encodings!
 // for that you'd want to use wstring_convert or similar
@@ -34,8 +31,16 @@ inline std::wstring ascii_to_wstring(const char * psz)
 
 // narrow() takes a wchar_t based UCS-2 or UCS-4 string and creates a utf8 encoded char based string (dep. on wchar_t)
 inline std::string narrow(const wchar_t * psz) { return std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(psz); }
-inline std::string narrow(const std::wstring & str) { return narrow(c_str(str)); }
+inline std::string narrow(const std::wstring & str) { return narrow(str.c_str()); }
+
+// narrow() an already narrow string
+inline std::string narrow(const char * psz) { return psz; }
+inline std::string narrow(const std::string && str) { return str; }
 
 // widen() takes a char based UTF-8 string and creates a UCS-2 or or UCS-4 encoded wchar_t string (dep. on wchar_t)
 inline std::wstring widen(const char * psz) { return std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(psz); }
-inline std::wstring widen(const std::string & str) { return widen(c_str(str)); }
+inline std::wstring widen(const std::string & str) { return widen(str.c_str()); }
+
+// widen() an already wide string
+inline std::wstring widen(const wchar_t * psz) { return psz; }
+inline std::wstring widen(const std::wstring && str) { return str; }

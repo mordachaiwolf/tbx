@@ -10,7 +10,8 @@ namespace tbx {
 	template <typename string_t = std::string>
 	class AutoStrBuffer
 	{
-		using CharType = typename string_t::traits_type::char_type;
+		using string_type = string_t;
+		using char_type = typename string_t::value_type;
 
 		string_t *	m_string;
 		size_t		m_length;
@@ -19,7 +20,7 @@ namespace tbx {
 	public:
 
 		// create a string buffer with enough space to handle length + null terminator
-		AutoStrBuffer(string_t & str, size_t length, CharType fill = '\0') 
+		AutoStrBuffer(string_t & str, size_t length, char_type fill = '\0') 
 			: m_string(&str)
 			, m_length(length)
 			, m_buffer(length + 1, fill)
@@ -57,11 +58,11 @@ namespace tbx {
 
 	// pointer semantics
 
-		CharType * get() { return m_buffer.data(); }
-		operator CharType * () { return get(); }
+		char_type * get() { return m_buffer.data(); }
+		operator char_type * () { return get(); }
 
-		const CharType * get() const { return m_buffer.c_str(); }
-		operator const CharType * () const { return get(); }
+		const char_type * get() const { return m_buffer.c_str(); }
+		operator const char_type * () const { return get(); }
 
 		// move
 

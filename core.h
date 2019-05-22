@@ -1,6 +1,38 @@
 #pragma once
 
+#include <initializer_list>
+
 // NOTE: KEEP THIS FILE SIMPLE AND WITHOUT DEPENDENCIES!!!
+
+//////////////////////////////////////////////////////////////////////////
+// 
+// SFINAE primer
+// 
+//////////////////////////////////////////////////////////////////////////
+//
+// Functions can trigger SFINAE by:
+//	* return type
+//	* auto -> return type
+//	* defaulted function arguments
+//  * defaulted template arguments
+// 
+//	template <typename T> std::enable_if_t<is_integral<T>, T> f(T value) { return value; }
+// 
+//	template <typename T> auto g(T value) -> decltype(T::size()) { return value.size(); }
+// 
+//	template <typename T> bool h(T value, typename std::enable_if<is_character<T>::value>::type* = 0) { return value & 0x3f; }
+//
+//	template <typename T, typename std::enable_if_t<is_character<T>::value, int> = 0> i(T c) { return c != 0; }
+//	note: it must use the type of the enable_if_t and set it to a value, as above, to force it to be a distinguishing part of the signature of the function
+//		  see notes under: https://en.cppreference.com/w/cpp/types/enable_if
+// 
+//////////////////////////////////////////////////////////////////////////
+//
+// structs are usually better off using (partial) template specialization or trait meta classes
+//	* my_trait_class<T>::stuff_i_need_discrimated_by_T (using template specialization for the correct my_trait_class<>)
+//	* template <> struct foo<bar> { /* foo specialized for bar */ };
+//
+//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // preprocessor junk
@@ -54,27 +86,6 @@ namespace tbx
 namespace tbx {
 
 	//////////////////////////////////////////////////////////////////////////
-	// literal_traits uses template specialization to achieve narrow or wide character literals for templates
-	// the idea came from me (Steven S. Wolf), and the implementation from Mark Ransom:
-	// q.v. http://stackoverflow.com/questions/4261673/templates-and-string-literals-and-unicode
-	//////////////////////////////////////////////////////////////////////////
-	template<typename T>
-	struct literal_traits
-	{
-		using char_type = char;
-		static const char * choose(const char * narrow, const wchar_t * wide) { return narrow; }
-		static char choose(const char narrow, const wchar_t wide) { return narrow; }
-	};
-
-	template<>
-	struct literal_traits<wchar_t>
-	{
-		using char_type = wchar_t;
-		static const wchar_t * choose(const char * narrow, const wchar_t * wide) { return wide; }
-		static wchar_t choose(const char narrow, const wchar_t wide) { return wide; }
-	};
-
-	//////////////////////////////////////////////////////////////////////////
 	// identity_of can help the compiler to access dependent types (for compilers that sometimes fail to get this right)
 	// e.g.: tbx::identity<decltype(my_map)>::type::value_type
 	//
@@ -100,9 +111,11 @@ namespace tbx {
 	// 	auto convert_(T value, rank<1>) ... // middle rank, will try this next, but rank<1> will auto convert to a rank<0> if this fails to compile
 	//	auto convert_(T value, rank<0>) ... // lowest rank, last stop is here
 
-	// rank<n> is a subclass of rank<n-1> and hence auto-convertible
-	template <int n> struct rank : rank<n - 1> { };
-	template <>      struct rank<0> { };
+	namespace details {
+		// rank<n> is a subclass of rank<n-1> and hence auto-convertible
+		template <int n> struct rank : rank<n - 1> { };
+		template <>      struct rank<0> { };
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// dereference_less is a simple predicate that returns "less" applied to the underlying object instances
@@ -120,10 +133,45 @@ namespace tbx {
 
 }
 
-// generates the narrow or wide character literal depending on T
-// usage: LITERAL(char-type, "literal text") or LITERAL(char-type, 'c')
-#define LITERAL(T,x) tbx::literal_traits<typename T>::choose(x, L##x)
-
 // forces the template selection/matching algorithm to not deduce T from the specified argument
 // usage: template <typename T> void myfun(T arg1, IDENTITYOF(T) arg2, ...);
 #define IDENTITYOF(T) typename tbx::identity_of<T>::type
+
+namespace tbx {
+
+	//////////////////////////////////////////////////////////////////////////
+	// isoneof tests whether the initial argument value occurs in the given set of other values
+
+	template <typename T, typename U>
+	bool isoneof(T v, U v1) { return v == v1; }
+
+	template <typename T, typename U, typename... Args>
+	bool isoneof(T v, U v1, Args ... others) { return isoneof(v, v1) || isoneof(v, others...); }
+
+	template <typename T, typename U>
+	bool isoneof(T value, std::initializer_list<U> values)
+	{
+		for (const auto & e : values)
+			if (value == e)
+				return true;
+		return false;
+	}
+
+	template <typename T, typename U, size_t size>
+	bool isoneof(T value, const U(&arr)[size])
+	{
+		for (size_t i = 0; i < size; ++i)
+			if (value == arr[i])
+				return true;
+		return false;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	// is_one_of tests whether the type is one of a set of given types
+
+	template<typename T, typename ... Ts>
+	struct is_one_of : std::bool_constant<(std::is_same_v<T, Ts> || ...)> { };
+
+	template <typename T, typename ... Ts> constexpr bool is_one_of_v = is_one_of<T, Ts...>::value;
+
+}

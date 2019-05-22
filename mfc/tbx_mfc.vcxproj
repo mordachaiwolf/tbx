@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AfxCollections.h" />
+    <ClInclude Include="AfxStrings.h" />
     <ClInclude Include="ApplicationInstanceRefCount.h" />
     <ClInclude Include="SimpleDropTarget.h" />
     <ClInclude Include="stdafx.h" />

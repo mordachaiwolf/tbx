@@ -1,6 +1,7 @@
 #pragma once
 
 #include <exception>
+#include "core.h"
 #include "character_encoding.h"
 
 namespace tbx {
@@ -93,6 +94,10 @@ namespace tbx {
 		{
 		}
 	};
+
+	// previous projects had a separate CLabeledException that is now merged into CContextException
+	using CLabeledException = CContextException;
+
 }
 
 // !! is used to ensure that any overloaded operators used to evaluate 'expr' do not end up at &&.

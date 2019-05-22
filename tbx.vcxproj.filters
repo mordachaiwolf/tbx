@@ -68,6 +68,12 @@
     <ClInclude Include="BlowFish.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Initialize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SmartChar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -80,6 +86,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="strings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Initialize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

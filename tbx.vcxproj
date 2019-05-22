@@ -93,6 +93,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/await</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -110,6 +112,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/await</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -129,6 +133,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/await</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,6 +156,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/await</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -172,9 +180,11 @@
     <ClInclude Include="core.h" />
     <ClInclude Include="CustomException.h" />
     <ClInclude Include="for_each.h" />
+    <ClInclude Include="Initialize.h" />
     <ClInclude Include="mutex_stream.h" />
     <ClInclude Include="noawait.h" />
     <ClInclude Include="noncopyable.h" />
+    <ClInclude Include="SmartChar.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="character_encoding.h" />
     <ClInclude Include="strings.h" />
@@ -182,6 +192,7 @@
   <ItemGroup>
     <ClCompile Include="base64.cpp" />
     <ClCompile Include="BlowFish.cpp" />
+    <ClCompile Include="Initialize.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

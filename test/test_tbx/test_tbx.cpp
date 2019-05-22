@@ -16,6 +16,7 @@
 #include "tbx\AutoMalloc.h"
 #include "tbx\AutoStringBuffer.h"
 #include "tbx\BlowFish.h"
+#include "tbx\strings.h"
 
 using namespace tbx;
 
@@ -482,3 +483,77 @@ SCENARIO("BlowFish")
 		}
 	}
 }
+
+SCENARIO("core strings and characters")
+{
+	const char kHello[] = "hello";
+	const auto && kHelloW = LITERAL(wchar_t, "hello");
+	const char16_t kHello16[] = u"hello";
+	const char32_t kHello32[] = U"hello";
+
+	THEN("IsEmpty aplies to char*, wchar_t*, and std strings of both base types")
+	{
+		REQUIRE(IsEmpty(""));
+		REQUIRE(IsEmpty((char*)nullptr));
+		REQUIRE(IsEmpty(L""));
+		REQUIRE(IsEmpty((wchar_t*)nullptr));
+		REQUIRE(IsEmpty(std::string()));
+		REQUIRE(IsEmpty(std::wstring()));
+
+		REQUIRE(!IsEmpty(kHello));
+		REQUIRE(!IsEmpty(kHelloW));
+		REQUIRE(!IsEmpty(std::string(kHello)));
+		REQUIRE(!IsEmpty(std::wstring(kHelloW)));
+	}
+
+	THEN("GetLength aplies to char*, wchar_t*, and std strings of both base types")
+	{
+		REQUIRE(GetLength("") == 0);
+		REQUIRE(GetLength((char*)nullptr) == 0);
+		REQUIRE(GetLength(L"") == 0);
+		REQUIRE(GetLength((wchar_t*)nullptr) == 0);
+		REQUIRE(GetLength(std::string()) == 0);
+		REQUIRE(GetLength(std::wstring()) == 0);
+
+		REQUIRE(GetLength(kHello) == lengthof(kHello));
+		REQUIRE(GetLength(kHelloW) == lengthof(kHelloW));
+		REQUIRE(GetLength(std::string(kHello)) == lengthof(kHello));
+		REQUIRE(GetLength(std::wstring(kHelloW)) == lengthof(kHelloW));
+	}
+
+	THEN("StringOrBlank aplies to char* and wchar_t* and never returns null")
+	{
+		REQUIRE(StringOrBlank(kHello) == kHello);
+		REQUIRE(StringOrBlank((char*)nullptr) != nullptr);
+		REQUIRE(StringOrBlank(kHelloW) == kHelloW);
+		REQUIRE(StringOrBlank((wchar_t*)nullptr) != nullptr);
+	}
+
+	THEN("get_string returns the raw const char * [TODO: upgrade to using string_view everywhere]")
+	{
+		REQUIRE(sizeof(get_string(kHello)) == sizeof(kHello));
+		REQUIRE(get_string(kHello) == kHello);
+		std::string s;
+		REQUIRE(get_string(s) == s.c_str());
+
+		REQUIRE(sizeof(get_string(kHelloW)) == sizeof(kHelloW));
+		REQUIRE(get_string(kHelloW) == kHelloW);
+		std::wstring w;
+		REQUIRE(get_string(w) == w.c_str());
+
+		REQUIRE(sizeof(get_string(kHello16)) == sizeof(kHello16));
+		REQUIRE(get_string(kHello16) == kHello16);
+		std::basic_string<char16_t> u;
+		REQUIRE(get_string(u) == u.c_str());
+
+		REQUIRE(sizeof(get_string(kHello32)) == sizeof(kHello32));
+		REQUIRE(get_string(kHello32) == kHello32);
+		std::basic_string<char32_t> U;
+		REQUIRE(get_string(U) == U.c_str());
+	}
+}
+
+SCENARIO("...")
+{
+}
+
